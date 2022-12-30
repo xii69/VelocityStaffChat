@@ -1,0 +1,7 @@
+# VelocityStaffChat plugin by xii69
+
+Prefix = "#"
+Message-Format = "&8[&6StaffChat&8] &b{player} &8[&6{server}&8]&7: &b{message}"
+Toggle-Format = "&6Staff chat is now &o{state}"
+No-Permission = "&cYou don't have permission."
+Only-Players = "&cThis command is only for in-game players."
