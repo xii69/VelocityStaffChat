@@ -1,7 +1,13 @@
-# VelocityStaffChat plugin by xii69
+# VelocityStaffChat configuration file
 
+# StaffChat prefix
 Prefix = "#"
+# StaffChat messages format
 Message-Format = "&8[&6StaffChat&8] &b{player} &8[&6{server}&8]&7: &b{message}"
+# Sends this message to players when they toggle their StaffChat
+# {state} will be Enabled or Disabled
 Toggle-Format = "&6Staff chat is now &o{state}"
+# No permission warn message
 No-Permission = "&cYou don't have permission."
+# You can't use staffchat in console, here is the warn message
 Only-Players = "&cThis command is only for in-game players."

@@ -30,7 +30,6 @@ import java.util.*;
         name = "VelocityStaffChat",
         version = "1.0.0",
         description = "VelocityStaffChat plugin by xii69.",
-        url = "neverland.ir",
         authors = {"xii69"}
 )
 
