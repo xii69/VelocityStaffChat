@@ -6,4 +6,4 @@
 
 # Did you find a problem?
 
-* Contact me on Discord: `xii69#6127
+* Contact me on Discord: xii69
