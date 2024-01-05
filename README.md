@@ -1,9 +1,21 @@
-# VelocityStaffChat
+#VelocityStaffChat
+*Simple, Fast & Lightweight Staff Chat plugin for Velocity
 
-# Installation:
+#Installation:
+*Download the plugin jar file, put it in plugins folder then start your Velocity server, done!
 
-* Download the plugin and put it in plugins folder then start your Velocity, done!
+#Usage:
+*Use #<Message> for sending a staff chat message.
+*Also you can do /staffchat or /sc to toggle all of your messages into staff chat without # prefix.
 
-# Did you find a problem?
+#Permissions:
+*velocitystaffchat.staff = permission for send & recieve staff chat messages
 
-* Contact me on Discord: xii69
+#Configuration:
+*Everything you need to know is commented in config file.
+
+#Notes:
+*Make sure any of your plugins don't have /staffchat or /sc command because VelocityStaffChat doesn't override that!
+
+#Did you find a problem?
+*Contact me on Discord: xii69
