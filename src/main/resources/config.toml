@@ -1,0 +1,23 @@
+# VelocityStaffChat v1.2.0
+
+[Configuration]
+# StaffChat prefix
+Prefix = "#"
+
+[Discord]
+# Fill all required data then change this to true
+Enabled = false
+# Webhook link
+Webhook = "Webhook Link"
+# Message format
+Message-Format = "[**{server}**] **{player}** : {message}"
+
+[Messages]
+# Message format
+Message-Format = "&8[&6StaffChat&8] &b{player} &8[&6{server}&8]&7: &b{message}"
+# Toggle notify message, placeholder: {state}
+Toggle-Format = "&6Staff chat is now &o{state}"
+# No permission message
+No-Permission = "&cYou don't have permission."
+# Console cannot use message
+Only-Players = "&cThis command is only for in-game players."
