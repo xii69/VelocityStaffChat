@@ -1,36 +1,23 @@
-# VelocityStaffChat configuration file
+# VelocityStaffChat v1.2.0
 
-### Configurations ###
 [Configuration]
 # StaffChat prefix
 Prefix = "#"
 
-### Discord configuration ###
 [Discord]
 # Fill all required data then change this to true
 Enabled = false
-# Webhook of channel
-Webhook = "ChannelWebhook"
-# Sender username
-# Placeholders:
-# %PLAYER% = returns players username
-# %SERVER% = returns players server name
-Username = "VelocityStaffChat"
-# Sender avatar
-# Placeholders:
-# %HEAD% - converts player head into a 64 by 64 pixel image
-Avatar-Link = "https://Avatar.link"
-# Sender message
+# Webhook link
+Webhook = "Webhook Link"
+# Message format
 Message-Format = "[**{server}**] **{player}** : {message}"
 
-### Messages ###
 [Messages]
-# StaffChat messages format
+# Message format
 Message-Format = "&8[&6StaffChat&8] &b{player} &8[&6{server}&8]&7: &b{message}"
-# Sends this message to players when they toggle their StaffChat
-# {state} will be Enabled or Disabled
+# Toggle notify message, placeholder: {state}
 Toggle-Format = "&6Staff chat is now &o{state}"
-# No permission warn message
+# No permission message
 No-Permission = "&cYou don't have permission."
-# You can't use staffchat in console, here is the warn message
+# Console cannot use message
 Only-Players = "&cThis command is only for in-game players."
