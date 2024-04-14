@@ -3,6 +3,7 @@ package me.xii69.velocitystaffchat;
 import com.google.inject.Inject;
 import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.command.Command;
+import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.event.Subscribe;
@@ -13,6 +14,14 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import me.xii69.velocitystaffchat.command.StaffChatCommand;
+import me.xii69.velocitystaffchat.data.PlayerData;
+import me.xii69.velocitystaffchat.listener.PlayerChatListener;
+import me.xii69.velocitystaffchat.listener.PlayerConnectionListener;
+import me.xii69.velocitystaffchat.listener.ProxyInitializeListener;
+import me.xii69.velocitystaffchat.registry.PlayerDataRegistry;
+import me.xii69.velocitystaffchat.settings.PluginSettings;
+import me.xii69.velocitystaffchat.util.TextUtils;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.slf4j.Logger;
@@ -34,108 +43,51 @@ import java.util.concurrent.CompletableFuture;
         authors = {"xii69"}
 )
 
-public class VelocityStaffChat implements SimpleCommand {
+public class VelocityStaffChat {
+
+    private static VelocityStaffChat instance; // Used for API purposes, not be used in the plugin itself
     private final Toml toml;
-    private final boolean enabled;
     private final Logger logger;
-    private final String prefix;
-    private final String webhook;
-    private final String toggleFormat;
-    private final String messageFormat;
-    private final Set<UUID> toggledPlayers;
-    private final String webhookMessageFormat;
-    private final Metrics.Factory metricsFactory;
-    public ProxyServer server;
-    private Path path;
+    private final ProxyServer server;
+    private final CommandManager commandManager;
+
+    private final PluginSettings settings;
+    private final PlayerDataRegistry playerDataRegistry;
 
     @Inject
-    public VelocityStaffChat(ProxyServer server, Logger logger, Metrics.Factory metricsFactory, @DataDirectory Path path) {
+    public VelocityStaffChat(ProxyServer server, Logger logger, @DataDirectory Path path) {
+        instance = this;
         this.server = server;
         this.logger = logger;
-        this.path = path;
         this.toml = loadConfig(path);
-        this.metricsFactory = metricsFactory;
-        this.prefix = toml.getString("Configuration.Prefix");
-        this.toggleFormat = toml.getString("Messages.Toggle-Format");
-        this.messageFormat = toml.getString("Messages.Message-Format");
-        this.toggledPlayers = new HashSet<>();
-        this.webhook = toml.getString("Discord.Webhook");
-        this.enabled = toml.getBoolean("Discord.Enabled");
-        this.webhookMessageFormat = toml.getString("Discord.Message-Format");
+
+        this.commandManager = server.getCommandManager();
+        this.playerDataRegistry = new PlayerDataRegistry();
+        this.settings = new PluginSettings(this);
+
+        new PlayerChatListener(this);
+        new PlayerConnectionListener(this);
+        new ProxyInitializeListener(this);
     }
 
-    @Subscribe
-    public void onProxyInitialization(ProxyInitializeEvent event) {
-        if (toml == null) {
-            logger.warn("Failed to load config.toml, disabling VelocityStaffChat ...");
-            return;
-        }
-
-        registerCommand("staffchat", new ArrayList<>(List.of("staffchat", "sc")), this, this.server);
-        Metrics metrics = metricsFactory.make(this, 20659);
+    public static VelocityStaffChat getInstance() {
+        return instance;
     }
 
-    @Override
-    public void execute(Invocation invocation) {
-        String[] args = invocation.arguments();
-        CommandSource source = invocation.source();
-
-        if (!(source instanceof Player)) {
-            source.sendMessage(colorize(toml.getString("Messages.Only-Players")));
-            return;
-        }
-
-        if (!source.hasPermission("velocitystaffchat.staff")) {
-            source.sendMessage(colorize(toml.getString("Messages.No-Permission")));
-            return;
-        }
-
-        Player player = (Player) source;
-
-        if (args.length != 0) {
-            sendStaffMessage(player, player.getCurrentServer().get(), String.join(" ", args));
-            return;
-        }
-
-        if (toggledPlayers.contains(player.getUniqueId())) {
-            toggledPlayers.remove(player.getUniqueId());
-            sendToggleMessage(player, false);
-        } else {
-            toggledPlayers.add(player.getUniqueId());
-            sendToggleMessage(player, true);
-        }
+    public Logger getLogger() {
+        return logger;
     }
 
-    @Subscribe
-    public void onChat(PlayerChatEvent event) {
-        Player player = event.getPlayer();
-
-        if (toggledPlayers.contains(player.getUniqueId())) {
-            event.setResult(PlayerChatEvent.ChatResult.denied());
-            sendStaffMessage(player, player.getCurrentServer().get(), event.getMessage());
-            if (enabled) sendDiscordMessage(player, player.getCurrentServer().get(), event.getMessage(), webhook);
-        } else if (String.valueOf(event.getMessage().charAt(0)).equalsIgnoreCase(prefix) && (player.hasPermission("velocitystaffchat.staff"))) {
-            event.setResult(PlayerChatEvent.ChatResult.denied());
-            sendStaffMessage(player, player.getCurrentServer().get(), event.getMessage().substring(1));
-            if (enabled) sendDiscordMessage(player, player.getCurrentServer().get(), event.getMessage().substring(1), webhook);
-        }
+    public Toml getConfiguration() {
+        return toml;
     }
 
-    private void sendToggleMessage(Player player, boolean state) {
-        player.sendMessage(colorize(toggleFormat.replace("{state}", state ? "enabled" : "disabled")));
+    public PlayerDataRegistry getPlayerDataRegistry() {
+        return playerDataRegistry;
     }
 
-    private void sendStaffMessage(Player player, ServerConnection server, String message) {
-        this.server.getAllPlayers()
-                .stream()
-                .filter(target -> target.hasPermission("velocitystaffchat.staff"))
-                .forEach(target -> target.sendMessage(
-                        colorize(
-                                messageFormat.replace("{player}", player.getUsername())
-                                        .replace("{server}", server != null ? server.getServerInfo().getName() : "N/A")
-                                        .replace("{message}", message)
-                        )
-                ));
+    public PluginSettings getSettings() {
+        return settings;
     }
 
     private Toml loadConfig(Path path) {
@@ -155,16 +107,29 @@ public class VelocityStaffChat implements SimpleCommand {
         return new Toml().read(file);
     }
 
-    public TextComponent colorize(String text) {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
+    public void registerCommand(String name, Command command, String... aliases) {
+        commandManager.register(commandManager.metaBuilder(name).aliases(aliases).build(), command);
     }
 
-    public void registerCommand(String name, Collection<String> aliases, Command command, ProxyServer server) {
-        server.getCommandManager().register(server.getCommandManager().metaBuilder(name).aliases(aliases.toArray(new String[0])).build(), command);
+    public void sendToggleMessage(Player player, boolean state) {
+        player.sendMessage(TextUtils.colorize(settings.getToggleFormat().replace("{state}", state ? "enabled" : "disabled")));
+    }
+
+    public void sendStaffMessage(Player player, ServerConnection server, String message) {
+        this.server.getAllPlayers()
+                .stream()
+                .filter(target -> target.hasPermission("velocitystaffchat.staff"))
+                .forEach(target -> target.sendMessage(
+                        TextUtils.colorize(
+                                settings.getMessageFormat().replace("{player}", player.getUsername())
+                                        .replace("{server}", server != null ? server.getServerInfo().getName() : "N/A")
+                                        .replace("{message}", message)
+                        )
+                ));
     }
 
     public void sendDiscordMessage(Player player, ServerConnection server, String message, String url) {
-        String finalMessage = new String(webhookMessageFormat.replace("{player}", player.getUsername())
+        String finalMessage = new String(settings.getWebhookMessageFormat().replace("{player}", player.getUsername())
                 .replace("{server}", server != null ? server.getServerInfo().getName() : "N/A")
                 .replace("{message}", message.replace("&", "")).getBytes(), StandardCharsets.UTF_8
         );
@@ -188,4 +153,5 @@ public class VelocityStaffChat implements SimpleCommand {
             }
         });
     }
+
 }
