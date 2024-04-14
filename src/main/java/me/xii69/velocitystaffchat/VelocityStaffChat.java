@@ -14,6 +14,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import lombok.Getter;
 import me.xii69.velocitystaffchat.command.StaffChatCommand;
 import me.xii69.velocitystaffchat.data.PlayerData;
 import me.xii69.velocitystaffchat.listener.PlayerChatListener;
@@ -43,6 +44,7 @@ import java.util.concurrent.CompletableFuture;
         authors = {"xii69"}
 )
 
+@Getter
 public class VelocityStaffChat {
 
     private static VelocityStaffChat instance; // Used for API purposes, not be used in the plugin itself
@@ -74,20 +76,8 @@ public class VelocityStaffChat {
         return instance;
     }
 
-    public Logger getLogger() {
-        return logger;
-    }
-
     public Toml getConfiguration() {
         return toml;
-    }
-
-    public PlayerDataRegistry getPlayerDataRegistry() {
-        return playerDataRegistry;
-    }
-
-    public PluginSettings getSettings() {
-        return settings;
     }
 
     private Toml loadConfig(Path path) {
