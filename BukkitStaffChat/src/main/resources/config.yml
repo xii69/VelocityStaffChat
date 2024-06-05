@@ -2,6 +2,6 @@ databases:
   chat:
     type: redis
     credentials:
-      host: 172.18.0.1
-      port: 6379
-      password: "MPpJRmWVSy7FBhrN"
+      host:
+      port:
+      password: ""
