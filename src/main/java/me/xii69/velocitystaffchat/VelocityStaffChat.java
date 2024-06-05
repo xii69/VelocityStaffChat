@@ -83,7 +83,9 @@ public class VelocityStaffChat {
     private Toml loadConfig(Path path) {
         File file = new File(path.toFile(), "config.toml");
 
-        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) return null;
+        if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+            return null;
+        }
 
         if (!file.exists()) {
             try (InputStream input = getClass().getResourceAsStream("/" + file.getName())) {
@@ -106,16 +108,18 @@ public class VelocityStaffChat {
     }
 
     public void sendStaffMessage(Player player, ServerConnection server, String message) {
-        this.server.getAllPlayers()
-                .stream()
-                .filter(target -> target.hasPermission("velocitystaffchat.staff"))
-                .forEach(target -> target.sendMessage(
-                        TextUtils.colorize(
-                                settings.getMessageFormat().replace("{player}", player.getUsername())
-                                        .replace("{server}", server != null ? server.getServerInfo().getName() : "N/A")
-                                        .replace("{message}", message)
-                        )
-                ));
+
+        for (Player serverPlayer : this.server.getAllPlayers()) {
+            if (!serverPlayer.hasPermission("velocitystaffchat.staff")) {
+                continue;
+            }
+
+            serverPlayer.sendMessage(TextUtils.colorize(
+                    settings.getMessageFormat().replace("{player}", player.getUsername())
+                            .replace("{server}", server != null ? server.getServerInfo().getName() : "N/A")
+                            .replace("{message}", message)
+            ));
+        }
     }
 
     public void sendDiscordMessage(Player player, ServerConnection server, String message, String url) {

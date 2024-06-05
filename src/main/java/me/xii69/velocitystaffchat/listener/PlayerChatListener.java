@@ -9,6 +9,8 @@ import me.xii69.velocitystaffchat.data.PlayerData;
 import me.xii69.velocitystaffchat.registry.PlayerDataRegistry;
 import me.xii69.velocitystaffchat.settings.PluginSettings;
 
+import java.util.Optional;
+
 public class PlayerChatListener{
 
     private final VelocityStaffChat plugin;
@@ -24,7 +26,13 @@ public class PlayerChatListener{
     @Subscribe
     public void onChat(PlayerChatEvent event) {
         Player player = event.getPlayer();
-        ServerConnection server = player.getCurrentServer().get();
+        Optional<ServerConnection> serverOptional = player.getCurrentServer();
+
+        if (serverOptional.isEmpty()) {
+            return;
+        }
+
+        ServerConnection server = serverOptional.get();
         PlayerData playerData = playerDataRegistry.get(player.getUniqueId());
 
         if (playerData == null) {
