@@ -1,4 +1,11 @@
 # VelocityStaffChat v1.2.0
+[databases]
+[databases.chat]
+    type = "redis"
+[databases.chat.credentials]
+    host = ""
+    port = ""
+    password = ""
 
 [Configuration]
 # StaffChat prefix

@@ -1,6 +1,5 @@
 package me.xii69.velocitystaffchat.registry;
 
-import com.velocitypowered.api.proxy.Player;
 import me.xii69.velocitystaffchat.data.PlayerData;
 
 import java.util.HashMap;

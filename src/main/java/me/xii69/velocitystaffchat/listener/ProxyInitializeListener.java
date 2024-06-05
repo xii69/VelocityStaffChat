@@ -3,7 +3,6 @@ package me.xii69.velocitystaffchat.listener;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import me.xii69.velocitystaffchat.VelocityStaffChat;
-import me.xii69.velocitystaffchat.command.StaffChatCommand;
 
 public class ProxyInitializeListener {
 
@@ -20,6 +19,7 @@ public class ProxyInitializeListener {
             return;
         }
 
-        plugin.registerCommand("staffchat", new StaffChatCommand(plugin), "staffchat", "sc");
+
+        System.out.println("Registered staffchat command!");
     }
 }

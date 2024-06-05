@@ -9,9 +9,7 @@ import me.xii69.velocitystaffchat.data.PlayerData;
 import me.xii69.velocitystaffchat.registry.PlayerDataRegistry;
 import me.xii69.velocitystaffchat.settings.PluginSettings;
 
-import java.util.Optional;
-
-public class PlayerChatListener{
+public class PlayerChatListener {
 
     private final VelocityStaffChat plugin;
     private final PluginSettings settings;
@@ -25,14 +23,9 @@ public class PlayerChatListener{
 
     @Subscribe
     public void onChat(PlayerChatEvent event) {
+        System.out.println("PlayerChatEvent");
         Player player = event.getPlayer();
-        Optional<ServerConnection> serverOptional = player.getCurrentServer();
-
-        if (serverOptional.isEmpty()) {
-            return;
-        }
-
-        ServerConnection server = serverOptional.get();
+        ServerConnection server = player.getCurrentServer().get();
         PlayerData playerData = playerDataRegistry.get(player.getUniqueId());
 
         if (playerData == null) {
@@ -40,9 +33,15 @@ public class PlayerChatListener{
         }
 
         String message = event.getMessage();
+        boolean hasPrefix = settings.doesMessageHavePrefix(message);
 
-        if (playerData.isToggled() || (doesMessageHavePrefix(message) && player.hasPermission("velocitystaffchat.staff"))) {
+        if (playerData.isToggled() || (hasPrefix && player.hasPermission("velocitystaffchat.staff"))) {
             event.setResult(PlayerChatEvent.ChatResult.denied());
+
+            if (hasPrefix) {
+                message = message.substring(1);
+            }
+
             sendMessage(player, server, message);
         }
     }
@@ -55,7 +54,5 @@ public class PlayerChatListener{
         }
     }
 
-    public boolean doesMessageHavePrefix(String message) {
-        return message.startsWith(settings.getPrefix());
-    }
+
 }

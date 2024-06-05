@@ -1,14 +1,16 @@
 package me.xii69.velocitystaffchat.command;
 
-import com.moandjiezana.toml.Toml;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import me.xii69.velocitystaffchat.VelocityStaffChat;
 import me.xii69.velocitystaffchat.data.PlayerData;
+import me.xii69.velocitystaffchat.data.database.databases.ChatStorage;
 import me.xii69.velocitystaffchat.registry.PlayerDataRegistry;
 import me.xii69.velocitystaffchat.settings.PluginSettings;
 import me.xii69.velocitystaffchat.util.TextUtils;
+
+import java.util.UUID;
 
 public class StaffChatCommand implements SimpleCommand {
 
@@ -24,16 +26,17 @@ public class StaffChatCommand implements SimpleCommand {
 
     @Override
     public void execute(Invocation invocation) {
+        ChatStorage chatStorage = plugin.getChatStorage();
         String[] args = invocation.arguments();
         CommandSource source = invocation.source();
 
         if (!(source instanceof Player player)) {
-            source.sendMessage(TextUtils.colorize(settings.getMessageOnlyPlayers()));
+            source.sendMessage(TextUtils.color(settings.getMessageOnlyPlayers()));
             return;
         }
 
         if (!source.hasPermission("velocitystaffchat.staff")) {
-            source.sendMessage(TextUtils.colorize(settings.getMessageNoPermission()));
+            source.sendMessage(TextUtils.color(settings.getMessageNoPermission()));
             return;
         }
 
@@ -42,8 +45,17 @@ public class StaffChatCommand implements SimpleCommand {
             return;
         }
 
-        PlayerData playerData = playerDataRegistry.get(player.getUniqueId());
+        UUID playerId = player.getUniqueId();
+        PlayerData playerData = playerDataRegistry.get(playerId);
         playerData.toggle();
-        plugin.sendToggleMessage(player, playerData.isToggled());
+
+        boolean toggled = playerData.isToggled();
+        plugin.sendToggleMessage(player, toggled);
+
+        if (chatStorage == null) {
+            return;
+        }
+
+        chatStorage.setToggled(playerId, toggled);
     }
 }

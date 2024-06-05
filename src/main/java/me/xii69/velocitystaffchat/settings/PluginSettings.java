@@ -3,7 +3,6 @@ package me.xii69.velocitystaffchat.settings;
 import com.moandjiezana.toml.Toml;
 import lombok.Getter;
 import me.xii69.velocitystaffchat.VelocityStaffChat;
-import org.slf4j.Logger;
 
 @Getter
 public class PluginSettings {
@@ -35,5 +34,9 @@ public class PluginSettings {
 
         this.messageOnlyPlayers = toml.getString("Messages.Only-Players");
         this.messageNoPermission = toml.getString("Messages.No-Permission");
+    }
+
+    public boolean doesMessageHavePrefix(String message) {
+        return message.startsWith(getPrefix());
     }
 }
