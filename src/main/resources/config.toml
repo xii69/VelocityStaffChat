@@ -1,10 +1,14 @@
 # VelocityStaffChat v1.2.0
 [databases]
 [databases.chat]
+    # Database type, currently only support redis, you can leave it empty if you don't want to use it
     type = "redis"
 [databases.chat.credentials]
+    # Redis host
     host = ""
+    # Redis port
     port = ""
+    # Redis password
     password = ""
 
 [Configuration]
