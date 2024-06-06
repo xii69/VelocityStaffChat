@@ -1,0 +1,6 @@
+name: BukkitStaffChat
+version: '${version}'
+main: me.xii69.bukkitstaffchat.BukkitStaffChat
+api-version: '1.20'
+libraries:
+  - "org.redisson:redisson:3.28.0"
